@@ -1,2 +1,5 @@
 [phases.setup]
-nixPkgs = ["...", "php82Packages.extensions.mysqli"]
+nixPkgs = ["php82", "php82Packages.composer", "php82Packages.extensions.mysqli"]
+
+[phases.install]
+cmds = ["composer install"]
