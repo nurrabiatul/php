@@ -2,9 +2,9 @@
 // Mengambil data dari environment variables Railway
 $host = getenv('MYSQLHOST') ?: 'mysql.railway.internal';
 $user = getenv('MYSQLUSER') ?: 'root';
-$pass = getenv('MYSQLPASSWORD') ?: 'LZstNChgUtUIzpLIpzjVtJVusCMZscPX';
+$pass = getenv('MYSQLPASSWORD') ?: 'PBGQeoknwgBAfiaoqrqVnWrXzFuptfpt';
 $db   = getenv('MYSQLDATABASE') ?: 'railway';
-$port = getenv('MYSQLPORT') ?: 8080;
+$port = getenv('MYSQLPORT') ?: 3306;
 
 // Melakukan koneksi
 $koneksi = mysqli_connect($host, $user, $pass, $db, $port);
