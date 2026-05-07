@@ -1,68 +1,58 @@
 <?php
-// Tampilkan error untuk debugging
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+header('Content-Type: application/json');
+include 'koneksi.php';
 
-include 'koneksi.php'; 
+$method = $_SERVER['REQUEST_METHOD'];
 
-// Logika Create & Delete tetap di bawahnya...
+switch ($method) {
+    case 'GET':
+        // READ: Menampilkan semua data
+        $query = mysqli_query($koneksi, "SELECT * FROM users");
+        $result = mysqli_fetch_all($query, MYSQLI_ASSOC);
+        echo json_encode([
+            "status" => "success",
+            "data" => $result
+        ]);
+        break;
+
+    case 'POST':
+        // CREATE: Menambah data baru
+        // Mengambil input dari Body JSON (Postman) atau Form Data
+        $input = json_decode(file_get_contents('php://input'), true);
+        $nama = $input['nama'] ?? $_POST['nama'];
+        $sandi = $input['sandi'] ?? $_POST['sandi'];
+
+        if ($nama && $sandi) {
+            $sql = "INSERT INTO users (nama, sandi) VALUES ('$nama', '$sandi')";
+            if (mysqli_query($koneksi, $sql)) {
+                echo json_encode(["status" => "success", "message" => "Data berhasil ditambah"]);
+            } else {
+                echo json_encode(["status" => "error", "message" => mysqli_error($koneksi)]);
+            }
+        } else {
+            echo json_encode(["status" => "error", "message" => "Input nama dan sandi diperlukan"]);
+        }
+        break;
+
+    case 'DELETE':
+        // DELETE: Menghapus data berdasarkan ID di URL (?id=...)
+        if (isset($_GET['id'])) {
+            $id = (int)$_GET['id'];
+            $sql = "DELETE FROM users WHERE id=$id";
+            if (mysqli_query($koneksi, $sql)) {
+                echo json_encode(["status" => "success", "message" => "Data ID $id berhasil dihapus"]);
+            } else {
+                echo json_encode(["status" => "error", "message" => mysqli_error($koneksi)]);
+            }
+        } else {
+            echo json_encode(["status" => "error", "message" => "ID tidak ditemukan"]);
+        }
+        break;
+
+    default:
+        echo json_encode(["status" => "error", "message" => "Metode tidak diizinkan"]);
+        break;
+}
+
+mysqli_close($koneksi);
 ?>
-
-<!DOCTYPE html>
-<html>
-<head>
-    <title>PHP CRUD Railway</title>
-</head>
-<body>
-    <h2>Tambah Data</h2>
-    <form method="POST">
-        <input type="text" name="nama" placeholder="Nama" required>
-        <input type="sandi" name="sandi" placeholder="sandi" required>
-        <button type="submit" name="tambah">Simpan</button>
-    </form>
-
-    <?php
-
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-    // Logika Create
-    if(isset($_POST['tambah'])){
-        $nama = $_POST['nama'];
-        $sandi = $_POST['sandi'];
-        mysqli_query($koneksi, "INSERT INTO users (nama, sandi) VALUES('$nama', '$sandi')");
-    }
-
-    // Logika Delete
-    if(isset($_GET['hapus'])){
-        $id = $_GET['hapus'];
-        mysqli_query($koneksi, "DELETE FROM users WHERE id=$id");
-        header("Location: index.php");
-    }
-    ?>
-
-    <h2>Data Users</h2>
-    <table border="1">
-        <tr>
-            <th>ID</th>
-            <th>Nama</th>
-            <th>sandi</th>
-            <th>Aksi</th>
-        </tr>
-        <?php
-        $data = mysqli_query($koneksi, "SELECT * FROM users");
-        while($d = mysqli_fetch_array($data)){
-        ?>
-        <tr>
-            <td><?php echo $d['id']; ?></td>
-            <td><?php echo $d['nama']; ?></td>
-            <td><?php echo $d['sandi']; ?></td>
-            <td>
-                <a href="index.php?hapus=<?php echo $d['id']; ?>">Hapus</a>
-            </td>
-        </tr>
-        <?php } ?>
-    </table>
-</body>
-</html>
