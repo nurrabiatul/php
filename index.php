@@ -1,4 +1,12 @@
-<?php include 'koneksi.php'; ?>
+<?php
+// Tampilkan error untuk debugging
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
+include 'koneksi.php'; 
+
+// Logika Create & Delete tetap di bawahnya...
+?>
 
 <!DOCTYPE html>
 <html>
